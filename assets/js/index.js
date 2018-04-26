@@ -1,11 +1,10 @@
-function initializeMap (canvas_svg, tooltip_container) {
+function initializeMap (canvasSvg, tooltipContainer, valueColumn) {
     d3.csv("assets/data/final_out.csv", function (err, data) {
         var config = {
             "color1": "#d3e5ff",
             "color2": "#08306B",
             "stateDataColumn": "state",
-            "valueDataColumn": "toxic",
-            "conectionColumn": "replyState"
+            "valueDataColumn": valueColumn,
         };
 
         var WIDTH = 800, HEIGHT = 500;
@@ -98,7 +97,7 @@ function initializeMap (canvas_svg, tooltip_container) {
 
         var path = d3.geo.path();
 
-        var svg = d3.select(canvas_svg).append("svg")
+        var svg = d3.select(canvasSvg).append("svg")
             .attr("width", width)
             .attr("height", height);
 
@@ -154,28 +153,28 @@ function initializeMap (canvas_svg, tooltip_container) {
                         html += "</span>";
                         html += "</div>";
 
-                        $(tooltip_container).html(html);
+                        $(tooltipContainer).html(html);
                         $(this).attr("fill-opacity", "0.8");
-                        $(tooltip_container).show();
+                        $(tooltipContainer).show();
 
                         var coordinates = d3.mouse(this);
 
                         var map_width = $('.states-choropleth')[0].getBoundingClientRect().width;
 
                         if (d3.event.layerX < map_width / 2) {
-                            d3.select(tooltip_container)
+                            d3.select(tooltipContainer)
                                 .style("top", (d3.event.layerY + 15) + "px")
                                 .style("left", (d3.event.layerX + 15) + "px");
                         } else {
-                            var tooltip_width = $(tooltip_container).width();
-                            d3.select(tooltip_container)
+                            var tooltip_width = $(tooltipContainer).width();
+                            d3.select(tooltipContainer)
                                 .style("top", (d3.event.layerY + 15) + "px")
                                 .style("left", (d3.event.layerX - tooltip_width - 30) + "px");
                         }
                     })
                     .on("mouseout", function () {
                         $(this).attr("fill-opacity", "1.0");
-                        $(tooltip_container).hide();
+                        $(tooltipContainer).hide();
                     })
                     .on("click", function (e) {
                         var state = id_name_map[e.id];
@@ -195,9 +194,9 @@ function initializeMap (canvas_svg, tooltip_container) {
     });
 };
 
-function initializeMaps(canvas_list, tooltip_con_list) {
+function initializeMaps(canvas_list, tooltip_con_list, values) {
     $.each(canvas_list, function (index, canvas) {
-        initializeMap(canvas, tooltip_con_list[index]);
+        initializeMap(canvas, tooltip_con_list[index], values[index]);
     });
 };
 
@@ -212,4 +211,10 @@ initializeMaps(["#canvas-svg-toxic",
                  "#tooltip-container-obscene",
                  "#tooltip-container-threat",
                  "#tooltip-container-insult",
-                 "#tooltip-container-hate"]);
+                 "#tooltip-container-hate"],
+                ["toxic",
+                 "severe_toxic",
+                 "obscene",
+                 "threat",
+                 "insult",
+                 "identity_hate"]);
