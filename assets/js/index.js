@@ -1,4 +1,4 @@
-function initializeMap (canvasSvg, tooltipContainer, valueColumn) {
+function initializeMap(canvasSvg, tooltipContainer, valueColumn) {
     d3.csv("assets/data/final_out.csv", function (err, data) {
         var config = {
             "color1": "#d3e5ff",
@@ -7,7 +7,7 @@ function initializeMap (canvasSvg, tooltipContainer, valueColumn) {
             "valueDataColumn": valueColumn,
         };
 
-        var WIDTH = 800, HEIGHT = 500;
+        var WIDTH = 960, HEIGHT = 500, centered;
 
         var COLOR_COUNTS = 9;
 
@@ -95,11 +95,24 @@ function initializeMap (canvasSvg, tooltipContainer, valueColumn) {
                 return i
             }));
 
-        var path = d3.geo.path();
+        var projection = d3.geo.albersUsa()
+            .scale(1070)
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geo.path()
+            .projection(projection);
 
         var svg = d3.select(canvasSvg).append("svg")
             .attr("width", width)
             .attr("height", height);
+
+        svg.append("rect")
+            .attr("class", "background")
+            .attr("width", width)
+            .attr("height", height)
+            .on("click", clicked);
+
+        var g = svg.append("g");
 
         d3.tsv("https://s3-us-west-2.amazonaws.com/vida-public/geo/us-state-names.tsv", function (error, names) {
             name_id_map = {};
@@ -118,17 +131,19 @@ function initializeMap (canvasSvg, tooltipContainer, valueColumn) {
             quantize.domain([d3.min(data, function (d) {
                 return +d[MAP_VALUE]
             }),
-            d3.max(data, function (d) {
-                return +d[MAP_VALUE]
-            })]);
+                d3.max(data, function (d) {
+                    return +d[MAP_VALUE]
+                })]);
 
             d3.json("https://s3-us-west-2.amazonaws.com/vida-public/geo/us.json", function (error, us) {
-                svg.append("g")
+                if (error) throw error;
+
+                g.append("g")
                     .attr("class", "states-choropleth")
                     .selectAll("path")
                     .data(topojson.feature(us, us.objects.states).features)
                     .enter().append("path")
-                    .attr("transform", "scale(" + SCALE + ")")
+                    // .attr("transform", "scale(" + SCALE + ")")
                     .style("fill", function (d) {
                         if (valueById.get(d.id)) {
                             var i = quantize(valueById.get(d.id));
@@ -176,21 +191,44 @@ function initializeMap (canvasSvg, tooltipContainer, valueColumn) {
                         $(this).attr("fill-opacity", "1.0");
                         $(tooltipContainer).hide();
                     })
-                    .on("click", function (e) {
-                        var state = id_name_map[e.id];
-                        window.sessionStorage.setItem("state", state);
-                        window.location = "state.html";
-                    });
+                    .on("click", clicked);
 
-                svg.append("path")
+                g.append("path")
                     .datum(topojson.mesh(us, us.objects.states, function (a, b) {
                         return a !== b;
                     }))
                     .attr("class", "states")
-                    .attr("transform", "scale(" + SCALE + ")")
+                    // .attr("transform", "scale(" + SCALE + ")")
                     .attr("d", path);
             });
         });
+
+        function clicked(d) {
+            var x, y, k;
+
+            if (d && centered !== d) {
+                var centroid = path.centroid(d);
+                x = centroid[0];
+                y = centroid[1];
+                k = 4;
+                centered = d;
+            } else {
+                x = width / 2;
+                y = height / 2;
+                k = 1;
+                centered = null;
+            }
+
+            g.selectAll("path")
+                .classed("active", centered && function (d) {
+                    return d === centered;
+                });
+
+            g.transition()
+                .duration(750)
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                .style("stroke-width", 1.5 / k + "px");
+        };
     });
 };
 
@@ -201,20 +239,20 @@ function initializeMaps(canvas_list, tooltip_con_list, values) {
 };
 
 initializeMaps(["#canvas-svg-toxic",
-                "#canvas-svg-severe",
-                "#canvas-svg-obscene",
-                "#canvas-svg-threat",
-                "#canvas-svg-insult",
-                "#canvas-svg-hate"],
-                ["#tooltip-container-toxic",
-                 "#tooltip-container-severe",
-                 "#tooltip-container-obscene",
-                 "#tooltip-container-threat",
-                 "#tooltip-container-insult",
-                 "#tooltip-container-hate"],
-                ["toxic",
-                 "severe_toxic",
-                 "obscene",
-                 "threat",
-                 "insult",
-                 "identity_hate"]);
+        "#canvas-svg-severe",
+        "#canvas-svg-obscene",
+        "#canvas-svg-threat",
+        "#canvas-svg-insult",
+        "#canvas-svg-hate"],
+    ["#tooltip-container-toxic",
+        "#tooltip-container-severe",
+        "#tooltip-container-obscene",
+        "#tooltip-container-threat",
+        "#tooltip-container-insult",
+        "#tooltip-container-hate"],
+    ["toxic",
+        "severe_toxic",
+        "obscene",
+        "threat",
+        "insult",
+        "identity_hate"]);
