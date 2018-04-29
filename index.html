@@ -15,27 +15,36 @@
     <title>NY Times Comments Analysis</title>
 
     <style>
+        .chart .legend {
+            fill: black;
+            font: 14px sans-serif;
+            text-anchor: start;
+            font-size: 12px;
+        }
 
-.bar--positive {
-  fill: steelblue;
-}
+        .chart text {
+            fill: white;
+            font: 10px sans-serif;
+            text-anchor: end;
+        }
 
-.bar--negative {
-  fill: darkorange;
-}
+        .chart .label {
+            fill: black;
+            font: 14px sans-serif;
+            text-anchor: end;
+        }
 
-.axis text {
-  font: 10px sans-serif;
-}
+        .bar:hover {
+            fill: brown;
+        }
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-</style>
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+    </style>
 </head>
 
 <body style="position: relative">
@@ -59,7 +68,8 @@
                 </a>
             </li>
 
-            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="" data-original-title="Severe Toxic">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title=""
+                data-original-title="Severe Toxic">
                 <a class="nav-link" href="#severe">
                     <i class="fas fa-frown"></i>
                     <span class="nav-link-text">Severe Toxic</span>
@@ -87,7 +97,8 @@
                 </a>
             </li>
 
-            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="" data-original-title="Identity Hate">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title=""
+                data-original-title="Identity Hate">
                 <a class="nav-link" href="#hate">
                     <i class="fas fa-ribbon"></i>
                     <span class="nav-link-text">Identity Hate</span>
@@ -120,6 +131,12 @@
                 <i class="fas fa-meh"></i> Toxic Comments
             </div>
             <div class="card-body">
+                <div style="display: inline-block; width: 49%">
+                    By State
+                </div>
+                <div style="display: inline-block; width: 49%">
+                    By Headline
+                </div>
                 <div id="tooltip-container-toxic"></div>
                 <div id="canvas-svg-toxic"></div>
                 <div id="topic-toxic" style=""></div>
@@ -132,6 +149,12 @@
                 <i class="fas fa-frown"></i> Severe Toxic Comments
             </div>
             <div class="card-body">
+                <div style="display: inline-block; width: 49%">
+                    By State
+                </div>
+                <div style="display: inline-block; width: 49%">
+                    By Headline
+                </div>
                 <div id="tooltip-container-severe"></div>
                 <div id="canvas-svg-severe"></div>
                 <div id="topic-severe" style=""></div>
@@ -144,6 +167,12 @@
                 <i class="fas fa-user-times"></i> Obscene Comments
             </div>
             <div class="card-body">
+                <div style="display: inline-block; width: 49%">
+                    By State
+                </div>
+                <div style="display: inline-block; width: 49%">
+                    By Headline
+                </div>
                 <div id="tooltip-container-obscene"></div>
                 <div id="canvas-svg-obscene"></div>
                 <div id="topic-obscene" style=""></div>
@@ -168,6 +197,12 @@
                 <i class="fas fa-fire"></i> Insult Comments
             </div>
             <div class="card-body">
+                <div style="display: inline-block; width: 49%">
+                    By State
+                </div>
+                <div style="display: inline-block; width: 49%">
+                    By Headline
+                </div>
                 <div id="tooltip-container-insult"></div>
                 <div id="canvas-svg-insult"></div>
                 <div id="topic-insult" style=""></div>
@@ -180,6 +215,12 @@
                 <i class="fas fa-ribbon"></i> Identity Hate Comments
             </div>
             <div class="card-body">
+                <div style="display: inline-block; width: 49%">
+                    By State
+                </div>
+                <div style="display: inline-block; width: 49%">
+                    By Headline
+                </div>
                 <div id="tooltip-container-hate"></div>
                 <div id="canvas-svg-hate"></div>
                 <div id="topic-hate" style=""></div>

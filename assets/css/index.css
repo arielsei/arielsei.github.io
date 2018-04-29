@@ -7,10 +7,6 @@ body {
   pointer-events: all;
 }
 
-.states-choropleth .active {
-  fill: white !important;
-}
-
 /* stylesheet for your custom graph */
 .states {
     fill: none;
@@ -68,6 +64,28 @@ body {
     width: 49%;
     vertical-align: middle;
     text-align: center
+}
+
+@media (max-width: 1300px) {
+    #canvas-svg-toxic,
+    #canvas-svg-severe,
+    #canvas-svg-obscene,
+    #canvas-svg-threat,
+    #canvas-svg-insult,
+    #canvas-svg-hate {
+        display: block;
+        width: 100%;
+    }
+
+    #topic-toxic,
+    #topic-severe,
+    #topic-obscene,
+    #topic-threat,
+    #topic-insult,
+    #topic-hate {
+        display: block;
+        width: 100%;
+    }
 }
 
 html {
