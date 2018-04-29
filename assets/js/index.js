@@ -1,8 +1,204 @@
-function initializeMap(canvasSvg, tooltipContainer, valueColumn) {
+// function bubbles(svg, centroid) {
+//     svg.append("g")
+//         .attr("class", "bubble")
+//         .selectAll("circle")
+//         .data([1])
+//         .enter().append("circle")
+//         .attr("transform", function (d) {
+//             return "translate(" + centroid + ")";
+//         })
+//         .attr("r", 10)
+//         .style("fill", function (d) {
+//             return "#ffffff";
+//         });
+//
+//     // svg.append("clipPath")
+//     //     .attr("id", function (d) {
+//     //         return "clip-" + d.id;
+//     //     })
+//     //     .append("use")
+//     //     .attr("xlink:href", function (d) {
+//     //         return "#" + d.id;
+//     //     });
+//
+//     svg.append("text")
+//     // .attr("clip-path", function (d) {
+//     //     return "url(#clip-" + d.id + ")";
+//     // })
+//     // .selectAll("tspan")
+//     // .data(function (d) {
+//     //     return [1];
+//     // })
+//     // .enter().append("tspan")
+//     // .attr("x", 0)
+//     // .attr("y", function (d, i, nodes) {
+//     //     return 13 + (i - nodes.length / 2 - 0.5) * 10;
+//     // })
+//         .text(function (d) {
+//             return "RES";
+//         });
+//
+//     svg.append("title")
+//         .text(function (d) {
+//             return "QSO"
+//         });
+// }
+//
+// function b2(svg) {
+//     var diameter = 960,
+//         format = d3.format(",d"),
+//         color = d3.scale.category20c();
+//
+//     var bubble = d3.layout.pack()
+//         .sort(null)
+//         .size([diameter, diameter])
+//         .padding(1.5);
+//
+//     var tooltip = d3.select("body")
+//         .append("div")
+//         .style("position", "absolute")
+//         .style("z-index", "10")
+//         .style("visibility", "hidden")
+//         .style("color", "white")
+//         .style("padding", "8px")
+//         .style("background-color", "rgba(0, 0, 0, 0.75)")
+//         .style("border-radius", "6px")
+//         .style("font", "12px sans-serif")
+//         .text("tooltip");
+//
+//     d3.json("assets/data/flare.json", function (error, root) {
+//         var node = svg.selectAll(".node")
+//             .data(bubble.nodes(classes(root))
+//                 .filter(function (d) {
+//                     return !d.children;
+//                 }))
+//             .enter().append("g")
+//             .attr("class", "node")
+//             .attr("transform", function (d) {
+//                 return "translate(" + d.x + "," + d.y + ")";
+//             });
+//
+//         node.append("circle")
+//             .attr("r", function (d) {
+//                 return d.r;
+//             })
+//             .style("fill", function (d) {
+//                 return color(d.packageName);
+//             })
+//             .on("mouseover", function (d) {
+//                 tooltip.text(d.className + ": " + format(d.value));
+//                 tooltip.style("visibility", "visible");
+//             })
+//             .on("mousemove", function () {
+//                 return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
+//             })
+//             .on("mouseout", function () {
+//                 return tooltip.style("visibility", "hidden");
+//             });
+//
+//         node.append("text")
+//             .attr("dy", ".3em")
+//             .style("text-anchor", "middle")
+//             .style("pointer-events", "none")
+//             .text(function (d) {
+//                 return d.className.substring(0, d.r / 3);
+//             });
+//     });
+//
+// // Returns a flattened hierarchy containing all leaf nodes under the root.
+//     function classes(root) {
+//         var classes = [];
+//
+//         function recurse(name, node) {
+//             if (node.children) node.children.forEach(function (child) {
+//                 recurse(node.name, child);
+//             });
+//             else classes.push({packageName: name, className: node.name, value: node.size});
+//         }
+//
+//         recurse(null, root);
+//         return {children: classes};
+//     }
+//
+//     d3.select(self.frameElement).style("height", diameter + "px");
+// }
+
+function buildChart(container) {
+    var margin = {top: 20, right: 30, bottom: 40, left: 30},
+        width = 500 - margin.left - margin.right,
+        height = 261 - margin.top - margin.bottom;
+
+    var x = d3.scale.linear()
+        .range([0, width]);
+
+    var y = d3.scale.ordinal()
+        .rangeRoundBands([0, height], 0.1);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .tickSize(0)
+        .tickPadding(6);
+
+    var svg = d3.select(container).append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.tsv("assets/data/data.tsv", type, function (error, data) {
+        x.domain(d3.extent(data, function (d) {
+            return d.value;
+        })).nice();
+        y.domain(data.map(function (d) {
+            return d.name;
+        }));
+
+        svg.selectAll(".bar")
+            .data(data)
+            .enter().append("rect")
+            .attr("class", function (d) {
+                return "bar bar--" + (d.value < 0 ? "negative" : "positive");
+            })
+            .attr("x", function (d) {
+                return x(Math.min(0, d.value));
+            })
+            .attr("y", function (d) {
+                return y(d.name);
+            })
+            .attr("width", function (d) {
+                return Math.abs(x(d.value) - x(0));
+            })
+            .attr("height", y.rangeBand());
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + x(0) + ",0)")
+            .call(yAxis);
+    });
+
+    function type(d) {
+        d.value = +d.value;
+        return d;
+    }
+}
+
+function initializeMap(canvasSvg, tooltipContainer, valueColumn, colors) {
+    var col = colors;
+
     d3.csv("assets/data/final_out.csv", function (err, data) {
         var config = {
-            "color1": "#d3e5ff",
-            "color2": "#08306B",
+            "color1": col[0],
+            "color2": col[1],
             "stateDataColumn": "state",
             "valueDataColumn": valueColumn,
         };
@@ -103,13 +299,13 @@ function initializeMap(canvasSvg, tooltipContainer, valueColumn) {
             .projection(projection);
 
         var svg = d3.select(canvasSvg).append("svg")
-            .attr("width", width)
-            .attr("height", height);
+            .attr("width", width * SCALE)
+            .attr("height", height * SCALE);
 
         svg.append("rect")
             .attr("class", "background")
-            .attr("width", width)
-            .attr("height", height)
+            .attr("width", width * SCALE)
+            .attr("height", height * SCALE)
             .on("click", clicked);
 
         var g = svg.append("g");
@@ -143,7 +339,7 @@ function initializeMap(canvasSvg, tooltipContainer, valueColumn) {
                     .selectAll("path")
                     .data(topojson.feature(us, us.objects.states).features)
                     .enter().append("path")
-                    // .attr("transform", "scale(" + SCALE + ")")
+                    .attr("transform", "scale(" + SCALE + ")")
                     .style("fill", function (d) {
                         if (valueById.get(d.id)) {
                             var i = quantize(valueById.get(d.id));
@@ -191,14 +387,14 @@ function initializeMap(canvasSvg, tooltipContainer, valueColumn) {
                         $(this).attr("fill-opacity", "1.0");
                         $(tooltipContainer).hide();
                     })
-                    .on("click", clicked);
+                    .on("click", clicked)
 
                 g.append("path")
                     .datum(topojson.mesh(us, us.objects.states, function (a, b) {
                         return a !== b;
                     }))
                     .attr("class", "states")
-                    // .attr("transform", "scale(" + SCALE + ")")
+                    .attr("transform", "scale(" + SCALE + ")")
                     .attr("d", path);
             });
         });
@@ -208,8 +404,8 @@ function initializeMap(canvasSvg, tooltipContainer, valueColumn) {
 
             if (d && centered !== d) {
                 var centroid = path.centroid(d);
-                x = centroid[0];
-                y = centroid[1];
+                x = centroid[0] * 0.77;
+                y = centroid[1] * 0.77;
                 k = 4;
                 centered = d;
             } else {
@@ -226,33 +422,69 @@ function initializeMap(canvasSvg, tooltipContainer, valueColumn) {
 
             g.transition()
                 .duration(750)
+                //.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
                 .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
                 .style("stroke-width", 1.5 / k + "px");
         };
     });
 };
 
-function initializeMaps(canvas_list, tooltip_con_list, values) {
+function initializeMaps(canvas_list, tooltip_con_list, values, colors, topics) {
     $.each(canvas_list, function (index, canvas) {
-        initializeMap(canvas, tooltip_con_list[index], values[index]);
+        initializeMap(
+            canvas,
+            tooltip_con_list[index],
+            values[index],
+            colors[index]
+        );
+
+        buildChart(topics[index]);
     });
 };
 
-initializeMaps(["#canvas-svg-toxic",
-        "#canvas-svg-severe",
-        "#canvas-svg-obscene",
-        "#canvas-svg-threat",
-        "#canvas-svg-insult",
-        "#canvas-svg-hate"],
-    ["#tooltip-container-toxic",
-        "#tooltip-container-severe",
-        "#tooltip-container-obscene",
-        "#tooltip-container-threat",
-        "#tooltip-container-insult",
-        "#tooltip-container-hate"],
-    ["toxic",
-        "severe_toxic",
-        "obscene",
-        "threat",
-        "insult",
-        "identity_hate"]);
+$(document).ready(function () {
+    var offset = 85;
+
+    $('.navbar li a').click(function (event) {
+        event.preventDefault();
+        $($(this).attr('href'))[0].scrollIntoView();
+        scrollBy(0, -offset);
+    });
+
+    $("div.card.mb-3").children().hide();
+    $("div.card.mb-3").append($("#loading"));
+    initializeMaps(["#canvas-svg-toxic",
+            "#canvas-svg-severe",
+            "#canvas-svg-obscene",
+            "#canvas-svg-threat",
+            "#canvas-svg-insult",
+            "#canvas-svg-hate"],
+        ["#tooltip-container-toxic",
+            "#tooltip-container-severe",
+            "#tooltip-container-obscene",
+            "#tooltip-container-threat",
+            "#tooltip-container-insult",
+            "#tooltip-container-hate"],
+        ["toxic",
+            "severe_toxic",
+            "obscene",
+            "threat",
+            "insult",
+            "identity_hate"],
+        [["#f5ccff", "#cc00ff"],
+            ["#ffccff", "#4d004d"],
+            ["#ffe0b3", "#e68a00"],
+            ["#a6a6a6", "#000000"],
+            ["#ff6666", "#660000"],
+            ["#ccd2ff", "#0017bf"]],
+        ["#topic-toxic",
+            "#topic-severe",
+            "#topic-obscene",
+            "#topic-threat",
+            "#topic-insult",
+            "#topic-hate"]);
+
+    $("div.card.mb-3").children().not(".loading").show();
+    $(".loading").hide();
+});
+
