@@ -15,6 +15,20 @@
     <title>NY Times Comments Analysis</title>
 
     <style>
+        .axis text {
+            font: 10px sans-serif;
+        }
+
+        .axis line, .axis path {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        svg {
+            padding-left: 50px;
+        }
+
         .chart .legend {
             fill: black;
             font: 14px sans-serif;
@@ -38,12 +52,6 @@
             fill: brown;
         }
 
-        .axis path,
-        .axis line {
-            fill: none;
-            stroke: #000;
-            shape-rendering: crispEdges;
-        }
     </style>
 </head>
 
@@ -61,13 +69,6 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="" data-original-title="Toxic">
-                <a class="nav-link" href="#toxic">
-                    <i class="fas fa-meh"></i>
-                    <span class="nav-link-text">Toxic</span>
-                </a>
-            </li>
-
             <li class="nav-item" data-toggle="tooltip" data-placement="right" title=""
                 data-original-title="Severe Toxic">
                 <a class="nav-link" href="#severe">
@@ -126,38 +127,30 @@
             <i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i>
         </div>
 
-        <div id="toxic" class="card mb-3">
-            <div class="card-header">
-                <i class="fas fa-meh"></i> Toxic Comments
-            </div>
-            <div class="card-body">
-                <div style="display: inline-block; width: 49%">
-                    By State
-                </div>
-                <div style="display: inline-block; width: 49%">
-                    By Headline
-                </div>
-                <div id="tooltip-container-toxic"></div>
-                <div id="canvas-svg-toxic"></div>
-                <div id="topic-toxic" style=""></div>
-            </div>
-            <!--<div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>-->
-        </div>
-
         <div id="severe" class="card mb-3">
             <div class="card-header">
                 <i class="fas fa-frown"></i> Severe Toxic Comments
             </div>
             <div class="card-body">
                 <div style="display: inline-block; width: 49%">
-                    By State
+
                 </div>
-                <div style="display: inline-block; width: 49%">
-                    By Headline
+                <div style="display: inline-block; width: 16%; text-align: right">
+                    Less Toxic
+                </div>
+                <div style="display: inline-block; width: 29%; text-align: right">
+                    More Toxic
                 </div>
                 <div id="tooltip-container-severe"></div>
                 <div id="canvas-svg-severe"></div>
                 <div id="topic-severe" style=""></div>
+                <div id="legend-severe_toxic"></div>
+                <div style="display: inline-block; width: 16%;">
+                    Less Toxic
+                </div>
+                <div style="display: inline-block; width: 29%;">
+                    More Toxic
+                </div>
             </div>
             <!--<div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>-->
         </div>
@@ -168,14 +161,24 @@
             </div>
             <div class="card-body">
                 <div style="display: inline-block; width: 49%">
-                    By State
+
                 </div>
-                <div style="display: inline-block; width: 49%">
-                    By Headline
+                <div style="display: inline-block; width: 16%; text-align: right">
+                    Less Obscene
+                </div>
+                <div style="display: inline-block; width: 29%; text-align: right">
+                    More Obscene
                 </div>
                 <div id="tooltip-container-obscene"></div>
                 <div id="canvas-svg-obscene"></div>
                 <div id="topic-obscene" style=""></div>
+                <div id="legend-obscene"></div>
+                <div style="display: inline-block; width: 16%;">
+                    Less Obscene
+                </div>
+                <div style="display: inline-block; width: 29%;">
+                    More Obscene
+                </div>
             </div>
             <!--<div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>-->
         </div>
@@ -185,9 +188,25 @@
                 <i class="fas fa-exclamation-triangle"></i> Threat Comments
             </div>
             <div class="card-body">
+                <div style="display: inline-block; width: 49%">
+
+                </div>
+                <div style="display: inline-block; width: 16%; text-align: right">
+                    Less Threat
+                </div>
+                <div style="display: inline-block; width: 29%; text-align: right">
+                    More Threat
+                </div>
                 <div id="tooltip-container-threat"></div>
                 <div id="canvas-svg-threat"></div>
                 <div id="topic-threat" style=""></div>
+                <div id="legend-threat"></div>
+                <div style="display: inline-block; width: 16%;">
+                    Less Threat
+                </div>
+                <div style="display: inline-block; width: 29%;">
+                    More Threat
+                </div>
             </div>
             <!--<div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>-->
         </div>
@@ -198,14 +217,24 @@
             </div>
             <div class="card-body">
                 <div style="display: inline-block; width: 49%">
-                    By State
+
                 </div>
-                <div style="display: inline-block; width: 49%">
-                    By Headline
+                <div style="display: inline-block; width: 16%; text-align: right">
+                    Less Insult
+                </div>
+                <div style="display: inline-block; width: 29%; text-align: right">
+                    More Insult
                 </div>
                 <div id="tooltip-container-insult"></div>
                 <div id="canvas-svg-insult"></div>
                 <div id="topic-insult" style=""></div>
+                <div id="legend-insult"></div>
+                <div style="display: inline-block; width: 16%;">
+                    Less Insult
+                </div>
+                <div style="display: inline-block; width: 29%;">
+                    More Insult
+                </div>
             </div>
             <!--<div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>-->
         </div>
@@ -216,14 +245,24 @@
             </div>
             <div class="card-body">
                 <div style="display: inline-block; width: 49%">
-                    By State
+
                 </div>
-                <div style="display: inline-block; width: 49%">
-                    By Headline
+                <div style="display: inline-block; width: 16%; text-align: right">
+                    Less Identity Hate
+                </div>
+                <div style="display: inline-block; width: 29%; text-align: right">
+                    More Identity Hate
                 </div>
                 <div id="tooltip-container-hate"></div>
                 <div id="canvas-svg-hate"></div>
                 <div id="topic-hate" style=""></div>
+                <div id="legend-identity_hate"></div>
+                <div style="display: inline-block; width: 16%; padding-bottom: 50px">
+                    Less Identity Hate
+                </div>
+                <div style="display: inline-block; width: 29%;">
+                    More Identity Hate
+                </div>
             </div>
             <!--<div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>-->
         </div>

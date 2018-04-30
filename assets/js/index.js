@@ -261,7 +261,11 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                 });
 
 // Add text label in bar
-            bar.append("text")
+            bar.append("a")
+                .attr("xlink:href", function (d) {
+                    return "http://en.wikipedia.org/";
+                })
+                .append("text")
                 .attr("x", function (d) {
                     return x(d) - 3;
                 })
@@ -316,109 +320,44 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                 .call(yAxis);
         }
 
-        function buildChart(property, container, fulldata) {
-            var margin = {top: 20, right: 30, bottom: 40, left: 30},
-                width = 960 - margin.left - margin.right,
-                height = 500 - margin.top - margin.bottom;
+        function buildScale(container, property) {
+            var w = 300, h = 50;
 
-            var x = d3.scale.linear()
-                .range([0, width]);
+            var key = d3.select(container)
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
 
-            var y = d3.scale.ordinal()
-                .rangeRoundBands([0, height], 0.1);
+            var legend = key.append("defs")
+                .append("svg:linearGradient")
+                .attr("id", "leg-" + property)
+                .attr("x1", "0%")
+                .attr("y1", "100%")
+                .attr("x2", "100%")
+                .attr("y2", "100%")
+                .attr("spreadMethod", "pad");
 
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom");
+            var offset = 0;
 
-            var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left")
-                .tickSize(0)
-                .tickPadding(6);
+            for (var i = 0; i < COLOR_COUNTS; i++) {
+                var scol = colors[i].getColors();
 
-            var svg = d3.select(container).append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                legend.append("stop")
+                    .attr("offset", offset + "%")
+                    .attr("stop-color", "rgb(" + scol.r + "," + scol.g + "," + scol.b + ")")
+                    .attr("stop-opacity", 1);
 
-            var data = d3.nest()
-                .key(function (d) {
-                    return d.headline;
-                })
-                .rollup(function (v) {
-                    return d3.mean(v, function (d) {
-                        return d[property];
-                    });
-                })
-                .entries(fulldata);
-
-            var dataSorted = data.sort(function (x, y) {
-                return d3.descending(x.values, y.values);
-            });
-
-            data = dataSorted.slice(0, 9);
-
-            var others = dataSorted.slice(9);
-
-            data[9] = {
-                key: "Others",
-                values: d3.mean(others, function (d) {
-                    return +d.values;
-                })
-            };
-
-            x.domain(d3.extent(data, function (d) {
-                return d.values;
-            })).nice();
-            y.domain(data.map(function (d) {
-                return d.key;
-            }));
-
-            svg.selectAll(".bar")
-                .data(data)
-                .enter().append("rect")
-                .attr("class", function (d) {
-                    return "bar bar--" + (d.values < 0 ? "negative" : "positive");
-                })
-                .attr("x", function (d) {
-                    return x(Math.min(0, d.values));
-                })
-                .attr("y", function (d) {
-                    return y(d.key);
-                })
-                .attr("width", function (d) {
-                    return Math.abs(x(d.values) - x(0));
-                })
-                .attr("height", y.rangeBand())
-                .style("fill", function (d) {
-                    if (d.values) {
-                        var i = quantize(d.values);
-                        var color = colors[i].getColors();
-                        return "rgb(" + color.r + "," + color.g +
-                            "," + color.b + ")";
-                    } else {
-                        return "";
-                    }
-                });
-
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-
-            svg.append("g")
-                .attr("class", "y axis")
-                .attr("transform", "translate(" + x(0) + ",0)")
-                //.attr("transform", "scale(" + 0.7 + ")")
-                .call(yAxis);
-
-            function type(d) {
-                d.values = +d.values;
-                return d;
+                offset += 100 / (COLOR_COUNTS - 1);
             }
+
+            key.append("rect")
+                .attr("width", w)
+                .attr("height", h - 30)
+                .style("fill", "url(#leg-" + property + ")")
+                .attr("transform", "translate(0,10)");
         }
+
+        buildScale("#legend-" + property, property);
 
         bc2(property, chart_container, fulldata);
 
@@ -512,7 +451,7 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
         });
 
         function clicked(d) {
-            $("#topic-toxic").empty();
+            $(chart_container).empty();
 
             var x, y, k;
 
@@ -525,7 +464,7 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
 
                 var state = id_name_map[d.id];
 
-                bc2("toxic", "#topic-toxic", fulldata.filter(function (d) {
+                bc2(property, chart_container, fulldata.filter(function (d) {
                     return d.state == state;
                 }));
             } else {
@@ -540,7 +479,7 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                         return i
                     }));
 
-                bc2("toxic", "#topic-toxic", fulldata);
+                bc2(property, chart_container, fulldata);
             }
 
             g.selectAll("path")
@@ -595,8 +534,8 @@ $(document).ready(function () {
             "identity_hate"],
         [["#f5ccff", "#cc00ff"],
             ["#ffccff", "#4d004d"],
-            ["#ffe0b3", "#e68a00"],
-            ["#a6a6a6", "#000000"],
+            ["#cdefc3", "#2c641b"], //#377D22
+            ["#fad4b8", "#be5a0e"], //##EF8332
             ["#ff6666", "#660000"],
             ["#ccd2ff", "#0017bf"]],
         ["#topic-toxic",
