@@ -138,6 +138,8 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                                 return d[property];
                             }),
                             url: v[0].webURL,
+                            c1: v[0].commentone,
+                            c2: v[0].commenttwo,
                         }
                     })
                     .entries(fulldata);
@@ -156,7 +158,9 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                         values: d3.mean(others, function (d) {
                             return +d.values.values;
                         }),
-                        url: ""
+                        url: "",
+                        c1: "",
+                        c2: "",
                     }
                 };
 
@@ -236,8 +240,9 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                         html += "<span class=\"tooltip_key\">";
                         html += d.key;
                         html += "</span>";
-                        html += "<span class=\"tooltip_value\">";
-                        html += (valueById.get(d.id) ? d.values.values : "");
+                        html += "<br/>";
+                        html += "<span class=\"tooltip_text\">";
+                        html += d.values.c1.replace(/<(.|\n)*?>/g, '');
                         html += "";
                         html += "</span>";
                         html += "</div>";
@@ -272,9 +277,6 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                         return d.values.url;
                     })
                     .append("text")
-                    .attr("x", function (d) {
-                        return x(d) - 3;
-                    })
                     .attr("y", barHeight / 2)
                     .attr("fill", "black")
                     .attr("font-size", "14px")
@@ -290,8 +292,9 @@ function initializeMap(property, chart_container, canvasSvg, tooltipContainer, v
                         html += "<span class=\"tooltip_key\">";
                         html += d.key;
                         html += "</span>";
-                        html += "<span class=\"tooltip_value\">";
-                        html += (valueById.get(d.id) ? d.values.values : "");
+                        html += "<br/>";
+                        html += "<span class=\"tooltip_text\">";
+                        html += d.values.c1.replace(/<(.|\n)*?>/g, '');
                         html += "";
                         html += "</span>";
                         html += "</div>";

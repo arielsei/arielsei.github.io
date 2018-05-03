@@ -29,6 +29,7 @@ body {
     padding: 10px;
     border: 1px solid;
     display: none;
+    width: 300px;
 }
 
 .tooltip_key {
@@ -38,6 +39,10 @@ body {
 .tooltip_value {
     margin-left: 20px;
     float: right;
+}
+
+.tooltip_text {
+    margin-left: 20px;
 }
 
 #canvas-svg-toxic,
